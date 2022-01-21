@@ -13,5 +13,5 @@
 
 ```toml
     [dependencies]
-    uuidgen = {git = "https://github.com/azavgo/base64"}
+    base64 = {git = "https://github.com/azavgo/base64"}
 ```
