@@ -1,9 +1,7 @@
 ## Utility to encode into Base64 url-safe format
 
 ### Features: 
-1. Encodes ASCII into Base64 url-safe format;
-
-***Note:*** UTF-8 support will be added in the future versions;
+1. Encodes UTF-8 strings into Base64 url-safe format;
 
 ***Note:*** Base64 padding support will be added in the future versions;
 
