@@ -13,13 +13,13 @@
 
 ```toml
     [dependencies]
-    base64 = {git = "https://github.com/azavgo/base64"}
+    base64 = {git = "https://github.com/azavgo/base64", branch = "main"}
 ```
 
 2. 
 
 ```rust
-    use base64; 
+    use base64::*; 
 
     fn main() {     
         let input = "Many hands make light work."; 
