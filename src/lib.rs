@@ -93,11 +93,8 @@ fn character_bytes(c: char) -> String {
 }
 //3. Group the binary values into 6-bit chunks
 
-fn sixbit_chunks(s: String) -> Option<Vec<String>> {
-    if s == "".to_string() {
-        None
-    } else {
-        let c: Vec<char> = s.chars().collect();
+fn sixbit_chunks(s: String) -> Vec<String> {
+    let c: Vec<char> = s.chars().collect();
         let mut data: Vec<u8> = c
             .iter()
             .map(|e| e.to_string().parse::<u8>().unwrap())
@@ -121,8 +118,7 @@ fn sixbit_chunks(s: String) -> Option<Vec<String>> {
             x.drain(..);
         }
 
-        Some(v)
-    }
+        v
 }
 
 //4. Convert each individual 6-bit chunk into a decimal number
@@ -162,7 +158,7 @@ fn vec_char_str(v: Vec<char>) -> String {
 pub fn base64_encode(s: &str) -> String {   
     let v_1 = string_characters(s);
     let s_2 = string_bytes(v_1);
-    let v_3 = sixbit_chunks(s_2).unwrap();
+    let v_3 = sixbit_chunks(s_2);
     let v_4 = sixbit_decimal(v_3);
     let v_5 = decimal_base64(v_4); 
     let s_6 = vec_char_str(v_5);
@@ -220,27 +216,28 @@ mod tests {
 
     #[test]
     fn test01_sixbit_chunks() {
-        assert_eq!(Some(vec!["101010".to_string(), "011001".to_string(), "011100".to_string()]), sixbit_chunks("101010011001011100".to_string()));
+        assert_eq!(vec!["101010".to_string(), "011001".to_string(), "011100".to_string()], sixbit_chunks("101010011001011100".to_string()));
     }
 
     #[test]
     fn test02_sixbit_chunks() {
-        assert_eq!(Some(vec!["101010".to_string()]), sixbit_chunks("101010".to_string()));
+        assert_eq!(vec!["101010".to_string()], sixbit_chunks("101010".to_string()));
     }
 
     #[test]
     fn test03_sixbit_chunks() {
-        assert_eq!(Some(vec!["101010".to_string(), "100000".to_string()]), sixbit_chunks("1010101".to_string()));
+        assert_eq!(vec!["101010".to_string(), "100000".to_string()], sixbit_chunks("1010101".to_string()));
     }
 
     #[test]
     fn test04_sixbit_chunks() {
-        assert_eq!(Some(vec!["100000".to_string()]), sixbit_chunks("10".to_string()));
+        assert_eq!(vec!["100000".to_string()], sixbit_chunks("10".to_string()));
     }
 
     #[test]
     fn test05_sixbit_chunks() {
-        assert_eq!(None, sixbit_chunks("".to_string()));
+        let v_s: Vec<String> = Vec::new();
+        assert_eq!(v_s, sixbit_chunks("".to_string()));
     }
 
     #[test]
