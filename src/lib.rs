@@ -77,25 +77,21 @@ fn string_characters(s: &str) -> Vec<char> {
     s.chars().collect()
 }
 
-//2. Represent each of the character as a corresponding decimal byte value
+//2. Represent an input as UTF-8 bytes in a binary form
 
-fn character_value(c: Vec<char>) -> Vec<u32> {
-    c.iter().map(|e| *e as u32).collect()
+fn string_bytes(c: Vec<char>) -> String {
+    let v_s: Vec<String> = c.iter().map(|e| character_bytes(*e)).collect(); 
+    v_s.concat()
 }
 
-//3. Represent a decimal byte value as a binary 8-bit value
-
-fn decimal_binary(v: Vec<u32>) -> Vec<String> {
-    v.iter().map(|e| format!("{:08b}", *e)).collect()
+fn character_bytes(c: char) -> String {
+    let n = c.len_utf8(); 
+    let mut v = vec![0; n];
+    let _s = c.encode_utf8(&mut v[..]); 
+    let v_s: Vec<String> = v.iter().map(|e| format!("{:08b}", e)).collect(); 
+    v_s.concat()
 }
-
-//4. Join the binary values into one string of 0s and 1ns
-
-fn vector_string(s: Vec<String>) -> String {
-    s.concat()
-}
-
-//5. Group the binary values into 6-bit chunks
+//3. Group the binary values into 6-bit chunks
 
 fn sixbit_chunks(s: String) -> Option<Vec<String>> {
     if s == "".to_string() {
@@ -129,7 +125,7 @@ fn sixbit_chunks(s: String) -> Option<Vec<String>> {
     }
 }
 
-//6. Convert each individual 6-bit chunk into a decimal number
+//4. Convert each individual 6-bit chunk into a decimal number
 
 fn sixbit_decimal(v: Vec<String>) -> Vec<u8> {
     v.iter()
@@ -137,7 +133,7 @@ fn sixbit_decimal(v: Vec<String>) -> Vec<u8> {
         .collect()
 }
 
-//7. Represent each individual decimal number as base64 character
+//5. Represent each individual decimal number as base64 character
 
 fn decimal_base64(v: Vec<u8>) -> Vec<char> {
     
@@ -154,25 +150,23 @@ fn decimal_base64(v: Vec<u8>) -> Vec<char> {
     v_c
 }
 
-//8. Represent ASCII characters as a String
+//6. Represent ASCII characters as a String
 
 fn vec_char_str(v: Vec<char>) -> String {
     v.iter().collect()
 }
 
-//Note: if number of bits in point 4. is not divided by 6, add a padding "=",
+//Note: if number of bits in the last 6-bit chunk is less than 6, add a padding "=",
 //or two paddings "=="
 
 pub fn base64_encode(s: &str) -> String {   
     let v_1 = string_characters(s);
-    let v_2 = character_value(v_1);
-    let v_3 = decimal_binary(v_2);
-    let s_1 = vector_string(v_3);
-    let v_4 = sixbit_chunks(s_1).unwrap();
-    let v_5 = sixbit_decimal(v_4);
-    let v_c = decimal_base64(v_5); 
-    let s_2 = vec_char_str(v_c);
-    s_2
+    let s_2 = string_bytes(v_1);
+    let v_3 = sixbit_chunks(s_2).unwrap();
+    let v_4 = sixbit_decimal(v_3);
+    let v_5 = decimal_base64(v_4); 
+    let s_6 = vec_char_str(v_5);
+    s_6
 }
 
 #[cfg(test)]
@@ -181,6 +175,16 @@ mod tests {
     #[test]
     fn test01_base64_encode() {
         assert_eq!("TWFueSBoYW5kcyBtYWtlIGxpZ2h0IHdvcmsu".to_string(), base64_encode("Many hands make light work."));
+    }
+
+    #[test]
+    fn test02_base64_encode() {
+        assert_eq!("0KfQsNC5IC0g0Y3RgtC+INCy0LrRg9GB0L3QviE".to_string(), base64_encode("Чай - это вкусно!"));
+    }
+
+    #[test]
+    fn test03_base64_encode() {
+        assert_eq!("44GK6Iy244GM576O5ZGz44GX44GE77yB".to_string(), base64_encode("お茶が美味しい！"));
     }
     
     #[test]
@@ -240,34 +244,25 @@ mod tests {
     }
 
     #[test]
-    fn test01_vector_string() {
-        assert_eq!("101010011001011100001".to_string(), vector_string(vec!["1010100".to_string(), "1100101".to_string(), "1100001".to_string()]));
+    fn test01_character_bytes() {
+        assert_eq!("01010100".to_string(), character_bytes('T'));
     }
 
     #[test]
-    fn test01_decimal_binary() {
-        assert_eq!(vec!["01010100".to_string(), "01100101".to_string(), "01100001".to_string()], decimal_binary(vec![84, 101, 97]));
+    fn test02_character_bytes() {
+        assert_eq!("1101000010100111".to_string(), character_bytes('Ч'));
     }
 
     #[test]
-    fn test01_character_value() {
-        assert_eq!(vec![84, 101, 97], character_value(vec!['T','e','a']));
-    }
-
-    #[test]
-    fn test02_character_value() {
-        assert_eq!(vec![1063, 1072, 1081], character_value(vec!['Ч','а','й']));
-    }
-
-    #[test]
-    fn test03_character_value() {
-        assert_eq!(vec![12362, 33590, 12364], character_value(vec!['お','茶','が']));
+    fn test03_character_bytes() {
+        assert_eq!("111000111000000110001010".to_string(), character_bytes('お'));
     }
 
     #[test]
     fn test01_string_characters() {
         assert_eq!(vec!['T','e','a',' ','i','s',' ','d','e','l','i','c','i','o','u','s','!'], string_characters("Tea is delicious!"));
     }
+
     #[test]
     fn test02_string_characters() {
         assert_eq!(vec!['Ч','а','й',' ','-',' ','э','т','о',' ','в','к','у','с','н','о','!'], string_characters("Чай - это вкусно!"));
